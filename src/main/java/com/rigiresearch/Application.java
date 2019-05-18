@@ -32,8 +32,8 @@ public final class Application {
      */
     public void start() throws IOException {
         final Map<String, Model> result = new AtlTransformation.Builder()
-            .withMetamodel("Simple","metamodels/Simple.ecore")
-            .withMetamodel("Composed","metamodels/Composed.ecore")
+            .withMetamodel("Simple", "metamodels/Simple.ecore")
+            .withMetamodel("Composed", "metamodels/Composed.ecore")
             // There can be several inputs and outputs
             .withInput("IN", "models/composed.xmi")
             .withOutput("OUT", "models/simple.xmi")
