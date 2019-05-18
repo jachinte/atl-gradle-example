@@ -1,6 +1,6 @@
--- @path Composed=/Test/transformations/Composed.ecore
--- @path Simple=/Test/transformations/Simple.ecore
 -- @atlcompiler emftvm
+-- @nsURI Composed=http://ualberta.edu.cs.ssrg.student
+-- @nsURI Simple=http://ualberta.edu.cs.ssrg.studentsimple
 
 module Composed2Simple;
 create OUT : Simple from IN : Composed;

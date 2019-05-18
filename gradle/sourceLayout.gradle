@@ -1,0 +1,43 @@
+sourceSets {
+  main {
+    java.srcDirs = [
+      "src/main/java",
+    ]
+    resources.srcDirs = [
+      "src/main/resources",
+      "model"
+    ]
+  }
+  test {
+    java.srcDirs = [
+      "src/test/java",
+    ]
+    resources.srcDirs = [
+      "src/test/resources",
+    ]
+  }
+}
+
+jar {
+  from("lib") {
+    into("lib")
+  }
+  from("transformations") {
+    into("transformations")
+  }
+  from("model") {
+    into("model")
+  }
+  from("model-gen") {
+    into("model")
+  }
+  from(sourceSets.main.allSource) {
+    include "**/*.xtext"
+    include "**/*.xcore"
+    include "**/*.ecore"
+    include "**/*.genmodel"
+  }
+  manifest {
+    attributes "Bundle-SymbolicName": project.name
+  }
+}
