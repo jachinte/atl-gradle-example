@@ -1,6 +1,7 @@
 package com.rigiresearch;
 
 import com.rigiresearch.atl.AtlTransformation;
+import static com.rigiresearch.atl.AtlTransformation.ModelType;
 import com.rigiresearch.atl.SerializationParser;
 import java.io.IOException;
 import java.util.Collections;
@@ -35,8 +36,8 @@ public final class Application {
             .withMetamodel("Simple", "metamodels/Simple.ecore")
             .withMetamodel("Composed", "metamodels/Composed.ecore")
             // There can be several inputs and outputs
-            .withInput("IN", "models/composed.xmi")
-            .withOutput("OUT", "models/simple.xmi")
+            .withModel(ModelType.INPUT, "IN", "models/composed.xmi")
+            .withModel(ModelType.OUTPUT, "OUT", "models/simple.xmi")
             .withTransformation("transformations/Composed2Simple.atl")
             .build()
             .run();
