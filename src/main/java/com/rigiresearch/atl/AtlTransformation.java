@@ -45,6 +45,7 @@ import org.eclipse.m2m.atl.emftvm.util.TimingData;
  */
 @RequiredArgsConstructor
 @ToString
+@SuppressWarnings("ClassDataAbstractionCoupling")
 public final class AtlTransformation {
 
     /**
@@ -72,7 +73,7 @@ public final class AtlTransformation {
         this.registerMetamodels(set, environment);
         this.registerFactories(set);
         // Register the models
-        Map<String, Model> instances =
+        final Map<String, Model> instances =
             this.registerModels(set, environment, this.models);
         // Load and run the transformation module
         final TimingData data = new TimingData();
@@ -87,7 +88,7 @@ public final class AtlTransformation {
 
     /**
      * The ATL module directory.
-     * @return the module directory path
+     * @return The module directory path
      */
     private String moduleDirectory() {
         return String.format("%s/", this.transformation.getParent());
@@ -107,16 +108,16 @@ public final class AtlTransformation {
      * available in the execution environment.
      * @param set The resource set
      * @param environment The execution environment
-     * @param models The input, output and in-out models
+     * @param config The input, output and in-out models
      * @return The registered models
      */
     @SuppressWarnings("ParameterNumber")
     private Map<String, Model> registerModels(final ResourceSet set,
         final ExecEnv environment,
-        final Map<ModelType, List<NamedModel>> models) {
+        final Map<ModelType, List<NamedModel>> config) {
         final Map<String, Model> result = new HashMap<>();
-        for (final ModelType type : models.keySet()) {
-            for (final NamedModel ref : models.get(type)) {
+        for (final ModelType type : config.keySet()) {
+            for (final NamedModel ref : config.get(type)) {
                 final Model model = EmftvmFactory.eINSTANCE.createModel();
                 final URI uri = URI.createURI(ref.getPath().getAbsolutePath());
                 switch (type) {
@@ -249,10 +250,19 @@ public final class AtlTransformation {
          */
         public Builder() {
             this.metamodels = new HashMap<>();
-            this.models = new HashMap<>();
-            this.models.put(ModelType.INPUT, new ArrayList<>());
-            this.models.put(ModelType.IN_OUT, new ArrayList<>());
-            this.models.put(ModelType.OUTPUT, new ArrayList<>());
+            this.models = Builder.emptyModels();
+        }
+
+        /**
+         * Initialize the list of models.
+         * @return A map
+         */
+        private static Map<ModelType, List<NamedModel>> emptyModels() {
+            final Map<ModelType, List<NamedModel>> models = new HashMap<>();
+            models.put(ModelType.INPUT, new ArrayList<>());
+            models.put(ModelType.IN_OUT, new ArrayList<>());
+            models.put(ModelType.OUTPUT, new ArrayList<>());
+            return models;
         }
 
         /**
@@ -308,20 +318,21 @@ public final class AtlTransformation {
         /**
          * Adds a metamodel to the transformation context.
          * @param name The name of the metamodel
-         * @param nsUri The nsURI of the metamodel
+         * @param uri The nsURI of the metamodel
          * @return This builder
          */
-        public Builder withMetamodel(final String name, final URI nsUri) {
-            this.metamodels.put(name, nsUri);
+        public Builder withMetamodel(final String name, final URI uri) {
+            this.metamodels.put(name, uri);
             return this;
         }
 
         /**
          * Adds a model to the transformation context.
-         * @param type the type of the model
+         * @param type The type of the model
          * @param name The name of the ATL variable (e.g., OUT)
          * @param model The model object
          * @return This builder
+         * @throws IOException {@link #asFile(EObject)}
          */
         public Builder withModel(final ModelType type, final String name,
             final EObject model) throws IOException {
@@ -330,7 +341,7 @@ public final class AtlTransformation {
 
         /**
          * Adds a model to the transformation context.
-         * @param type the type of the model
+         * @param type The type of the model
          * @param name The name of the ATL variable (e.g., OUT)
          * @param path The path to the output model
          * @return This builder
@@ -394,17 +405,21 @@ public final class AtlTransformation {
          * Builds the transformation.
          * @return A new ATL transformation
          */
+        @SuppressWarnings("PMD.CyclomaticComplexity")
         public AtlTransformation build() {
             if (this.transformation == null) {
                 throw new IllegalArgumentException(
                     "The transformation module is required");
-            } else if (this.metamodels.isEmpty()) {
+            }
+            if (this.metamodels.isEmpty()) {
                 throw new IllegalArgumentException(
                     "At least one metamodel is required");
-            } else if (this.models.get(ModelType.INPUT).isEmpty()) {
+            }
+            if (this.models.get(ModelType.INPUT).isEmpty()) {
                 throw new IllegalArgumentException(
                     "At least one input model is required");
-            } else if (this.models.get(ModelType.OUTPUT).isEmpty()
+            }
+            if (this.models.get(ModelType.OUTPUT).isEmpty()
                 && this.models.get(ModelType.IN_OUT).isEmpty()) {
                 throw new IllegalArgumentException(
                     "At least one output model is required");
