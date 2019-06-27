@@ -1,9 +1,12 @@
 package com.rigiresearch.atl;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -84,6 +87,20 @@ public final class SerializationParser {
         return new String(
             stream.toByteArray(),
             StandardCharsets.UTF_8
+        );
+    }
+
+    /**
+     * Loads an {@link EObject} from the given XML representation.
+     * @param file The file containing the XML-formatted string
+     * @return The corresponding list of eObjects
+     * @throws IOException If something fails while loading the file
+     */
+    public EList<EObject> asEObjects(final File file) throws IOException {
+        return this.asEObjects(
+            Files.readAllLines(Paths.get(file.toURI()))
+                .stream()
+                .collect(Collectors.joining("\n"))
         );
     }
 
