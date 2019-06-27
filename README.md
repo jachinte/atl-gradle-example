@@ -24,4 +24,4 @@ final Map<String, Model> result = new AtlTransformation.Builder()
 	.run();
 ```
 
-Read methods in class [AtlTransformation.Builder](src/main/java/com/rigiresearch/atl/AtlTransformation.java) for more options. In particular, there is a method to read a metamodel from a JAR file and a method to specify an input/output/in-out model from an EObject.
+Read methods in class [AtlTransformation.Builder](src/main/java/com/rigiresearch/atl/AtlTransformation.java) for more options.
