@@ -2,11 +2,8 @@ package com.rigiresearch.atl;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -165,9 +162,13 @@ public final class AtlTransformation {
      * @param set The resource set
      */
     private void registerFactories(final ResourceSet set) {
+        final XMIResourceFactoryImpl factory = new XMIResourceFactoryImpl();
         set.getResourceFactoryRegistry()
             .getExtensionToFactoryMap()
-            .put("xmi", new XMIResourceFactoryImpl());
+            .put("ecore", factory);
+        set.getResourceFactoryRegistry()
+            .getExtensionToFactoryMap()
+            .put("xmi", factory);
         set.getResourceFactoryRegistry()
             .getExtensionToFactoryMap()
             .put("emftvm", new EMFTVMResourceFactoryImpl());
@@ -277,35 +278,6 @@ public final class AtlTransformation {
 
         /**
          * Adds a metamodel to the transformation context.
-         * <p>This method creates a temporal .ecore file and copies the
-         * metamodel from the .jar file.
-         * @param name The name of the metamodel
-         * @param jar The path to the .jar file containing the metamodel
-         * @param metamodel The path to the .ecore metamodel within the jar file
-         * @return This builder
-         * @throws IOException If something happens creating the temporal file
-         */
-        public Builder withMetamodelFromJar(final String name,
-            final String jar, final String metamodel) throws IOException {
-            final File file = File.createTempFile(name, Builder.ECORE_EXT);
-            final String path = String.format(
-                "jar:file:%s!/%s",
-                new File(jar).getAbsolutePath(),
-                metamodel
-            );
-            file.getParentFile().mkdir();
-            file.createNewFile();
-            final URL url = new URL(URLDecoder.decode(path, "UTF-8"));
-            Files.copy(
-                url.openStream(),
-                Paths.get(file.toURI()),
-                StandardCopyOption.REPLACE_EXISTING
-            );
-            return this.withMetamodel(name, file.getPath());
-        }
-
-        /**
-         * Adds a metamodel to the transformation context.
          * @param name The name of the metamodel
          * @param path The path to the metamodel
          * @return This builder
@@ -317,12 +289,14 @@ public final class AtlTransformation {
 
         /**
          * Adds a metamodel to the transformation context.
-         * @param name The name of the metamodel
-         * @param uri The nsURI of the metamodel
+         * @param epackage The metamodel's EPackage
          * @return This builder
          */
-        public Builder withMetamodel(final String name, final URI uri) {
-            this.metamodels.put(name, uri);
+        public Builder withMetamodel(final EPackage epackage) {
+            this.metamodels.put(
+                epackage.getName(),
+                URI.createURI(epackage.getNsURI())
+            );
             return this;
         }
 
